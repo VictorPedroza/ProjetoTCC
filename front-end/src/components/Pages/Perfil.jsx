@@ -41,53 +41,57 @@ export default function Perfil() {
 
   return (
     <main className="perfil-main">
-      <h1>Perfil do Usuário</h1>
       <div className="accordion">
-        <div className="accordion-item">
-          <div className="accordion-button" onClick={() => toggleAccordion(0)}>
-            <h2>Informações do Usuário</h2>
-          </div>
-          {activeIndex === 0 && (
+        <div className="accordion-item infos-user">
+          <div className="accordion-button ">
             <div className="accordion-content">
               {user ? (
                 <>
-                  <p>ID: {user.ID}</p>
+                  <h1>Perfil</h1>
                   <p>Nome: {user.Nome}</p>
                   <p>Email: {user.Email}</p>
                   <p>Senha: {user.Senha}</p>
                 </>
               ) : (
-                <p>Login não realizado!</p>
+                <>
+                  <h1>Perfil</h1>
+                  <p>Login não realizado!</p>
+                </>
+
+              )}
+              {user ? (
+                <button onClick={handleLogout} className=" btn-logout">SAIR</button>
+              ) : (
+                <button onClick={() => navigate('/login')} className="btn-login">LOGIN</button>
               )}
             </div>
-          )}
-        </div>
-        <div className="accordion-item">
-          <div className="accordion-button" onClick={() => toggleAccordion(1)}>
-            <h2>Registro de Livros Alugados</h2>
           </div>
-          {activeIndex === 1 && (
-            <div className="accordion-content">
-              <p>Futuro registro de livros alugados.</p>
-            </div>
-          )}
         </div>
-        <div className="accordion-item">
-          <div className="accordion-button" onClick={() => toggleAccordion(2)}>
-            <h2>Futuros Eventos</h2>
+        <div className="infos-adicionais">
+          <div className="accordion-item infos-aluguel">
+            <div className="accordion-button" onClick={() => toggleAccordion(1)}>
+              <h2>Registro de Livros Alugados</h2>
+            </div>
+            {activeIndex === 1 && (
+              <div className="accordion-content">
+                <p>Futuro registro de livros alugados.</p>
+              </div>
+            )}
           </div>
-          {activeIndex === 2 && (
-            <div className="accordion-content">
-              <p>Futuros eventos que participou/participa.</p>
+          <div className="accordion-item infos-eventos">
+            <div className="accordion-button" onClick={() => toggleAccordion(2)}>
+              <h2>Futuros Eventos</h2>
             </div>
-          )}
+            {activeIndex === 2 && (
+              <div className="accordion-content">
+                <p>Futuros eventos que participou/participa.</p>
+              </div>
+            )}
+          </div>
         </div>
+
       </div>
-      {user ? (
-        <button onClick={handleLogout} className=" btn sair">Sair</button>
-      ) : (
-        <button onClick={() => navigate('/login')} className="btn">Login</button>
-      )}
+
     </main>
   );
 }

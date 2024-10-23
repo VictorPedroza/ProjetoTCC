@@ -1,9 +1,99 @@
+.perfil-main {
+    height: 70vh;
+}
+
 .accordion-button {
     cursor: pointer;
     padding: 1rem;
     display: flex;
 }
 
+.btn-login {
+    margin: 1rem 0;
+    background-color: var(--secondary-color);
+    padding: .7rem 1rem;
+    border-radius: 1rem;
+    border: none;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+.btn-logout {
+    color: white;
+    margin: 1rem 0;
+    background-color: red;
+    padding: .7rem 1rem;
+    border-radius: 1rem;
+    border: none;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+.accordion-item {
+    width: 100%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: .5rem;
+}
+
 .accordion-content {
     padding: 1.2rem;
 }
+
+.accordion {
+    padding: 1rem;
+    height: 100%;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between !important;
+}
+
+.infos-adicionais {
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+    width: 60%;
+}
+
+.infos-adicionais .accordion-content {
+    padding-top: .2rem;
+}
+
+.infos-user {
+    height: 100%;
+    width: 40%;
+}
+
+.infos-aluguel {
+    height: 100%;
+}
+
+.infos-eventos {
+    height: 100%;
+}
+
+
+
+@media screen and (max-width: 700px) {
+    .accordion {
+        display: flex;
+        flex-direction: column;
+    }
+    .infos-adicionais {
+        gap: 1rem;
+        width: 100%;
+    }
+    .accordion-item {
+        width: 100%;
+    }
+    .infos-aluguel {
+        height: 100%;
+    }
+    
+    .infos-eventos {
+        height: 100%;
+    }
+}
+

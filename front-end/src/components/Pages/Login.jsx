@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import './Login.css';
 
 export default function Login() {
     const [values, setValues] = useState({
@@ -24,7 +25,7 @@ export default function Login() {
         axios.post('http://localhost:8088/Login', values)
         .then(res => {
             if (res.data.Status === "Success") {
-                navigate('/');
+                navigate('/')
             } else {
                 alert(res.data.Message);
             }
@@ -39,7 +40,7 @@ export default function Login() {
         <div className="login-container">
             <form className="login-form" onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="email"><strong>Email</strong></label>
+                    <label htmlFor="email"><strong>Email:</strong></label>
                     <input 
                         type="email" 
                         placeholder="Digite seu Email" 
@@ -50,7 +51,7 @@ export default function Login() {
                     />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="password"><strong>Senha</strong></label>
+                    <label htmlFor="password"><strong>Senha:</strong></label>
                     <input 
                         type="password" 
                         placeholder="Digite sua Senha" 
@@ -59,7 +60,7 @@ export default function Login() {
                         required 
                     />
                 </div>
-                <button type="submit" className="login-button">Login</button>
+                <button type="submit" className="btn-login">LOGIN</button>
                 <p className="terms">Aceito todos os termos e políticas!</p>
             </form>
         </div>

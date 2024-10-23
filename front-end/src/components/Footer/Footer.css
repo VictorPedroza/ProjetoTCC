@@ -1,0 +1,132 @@
+footer {
+    background-color: var(--secondary-color);
+    padding: 2rem;
+    border-radius: 2rem 2rem 0 0;
+    margin: 3rem 0 0 0;
+    box-shadow: inset 0 2px 2px 1px rgba(0, 0, 0, 0.5);
+    font-family: "Montserrat", sans-serif;
+    text-align: center;
+}
+footer header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+footer header h2 {
+    width: 60%;
+    text-align: start;
+    font-weight: 300;
+    font-size: 2rem;
+}
+
+footer header .buttons-footer {
+    padding: 1rem;
+    display: flex;
+    gap: 3rem;
+}
+
+footer header .buttons-footer button {
+    font-size: 1.4rem;
+    padding: 1rem 3.5rem;
+    border-radius: .6rem;
+    border: 3px solid black;
+    background-color: transparent;
+    font-weight: 400;
+    cursor: pointer;
+    color: var(--primary-color);
+    color: black;
+}
+
+footer header .buttons-footer button:hover {
+    transform: scale(.98);
+    transition: 0.3s;
+}
+
+footer header .buttons-footer .second-button {
+    border: none !important;
+    background-color: var(--white);
+    padding: 1rem 4rem;
+    color: black;
+}
+
+footer main {
+    padding: 2rem 1.5rem .8rem 1.5rem;
+    display: flex;
+    gap: 5rem;
+    text-align: start;
+}
+
+footer main div {
+    width: 50%;
+}
+
+footer main .paginas {
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+    
+}
+
+footer main .paginas a {
+    color: black;
+    font-size: 1.2rem;
+}
+
+footer main h2 {
+    font-size: 1.4rem;
+}
+
+footer main .paginas .active {
+    text-decoration: none;
+    font-weight: normal;
+}
+
+footer main .contato {
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+}
+
+footer main .contato ul {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+footer main .contato ul li {
+    cursor: pointer;
+}
+
+footer p span {
+    color: black;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+
+@media screen and (max-width: 700px) {
+    footer header .buttons-footer {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    footer header .buttons-footer button {
+        font-size: 1.2rem !important;
+        width: 100%;
+    }
+
+    footer main  {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    footer main .active {
+        box-shadow: none;
+    }
+
+    footer header h2 {
+        width: 100%;
+    }
+}

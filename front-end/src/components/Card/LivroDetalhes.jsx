@@ -39,7 +39,7 @@ export default function LivroDetalhes() {
                 observacoes: 'Aluguel de teste', // ou qualquer outra observação que você queira adicionar
             });
 
-            alert(`Aluguel criado com sucesso! ID: ${response.data.id}`);
+            alert(`Aluguel solicitado com sucesso!`);
             console.log(response.data);
         } catch (error) {
             if (error.response) {

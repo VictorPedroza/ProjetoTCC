@@ -77,19 +77,42 @@ app.post("/Login", [
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-    const sql = 'SELECT * FROM usuario WHERE Email = ? AND Senha = ?';
-    db.query(sql, [req.body.email, req.body.password], (err, data) => {
-        if (err) return res.json({ Message: "Server Side Error" });
+
+    console.log("Dados da requisição:", req.body); // Log dos dados recebidos
+
+    const sql = 'SELECT * FROM usuario WHERE Email = ?';
+    db.query(sql, [req.body.email], (err, data) => {
+        if (err) {
+            console.error("Erro na consulta ao banco de dados:", err);
+            return res.json({ Message: "Server Side Error" });
+        }
+
+        console.log("Dados retornados da consulta:", data); // Log dos dados retornados
+
         if (data.length > 0) {
-            const name = data[0].Nome;
-            const token = jwt.sign({ name }, 'our-jsonwebtoken-secret-key', { expiresIn: "1d" });
-            res.cookie('token', token, { httpOnly: true });
-            return res.json({ Status: "Success", name });
+            const user = data[0];
+            const name = user.Nome;
+
+            // Verifica a senha usando bcrypt
+            bcrypt.compare(req.body.password, user.Senha, (err, match) => {
+                if (err) {
+                    return res.status(500).json({ Message: "Erro ao verificar a senha" });
+                }
+                if (match) {
+                    const token = jwt.sign({ name }, 'our-jsonwebtoken-secret-key', { expiresIn: "1d" });
+                    res.cookie('token', token, { httpOnly: true });
+                    return res.json({ Status: "Success", name });
+                } else {
+                    return res.status(401).json({ Message: "Senha incorreta" });
+                }
+            });
         } else {
-            return res.json({ Message: "Usuário não encontrado" });
+            return res.status(404).json({ Message: "Teste não encontrado" });
         }
     });
 });
+
+
 
 app.get('/Logout', (req, res) => {
     res.clearCookie('token');
@@ -142,12 +165,52 @@ app.get('/Eventos', (req, res) => {
     });
 });
 
+app.post("/Register", [
+    body('name').notEmpty().withMessage('O nome é obrigatório.'),
+    body('email').isEmail().withMessage('O email deve ser válido.'),
+    body('password').isLength({ min: 5 }).withMessage('A senha deve ter pelo menos 5 caracteres.')
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, email, password } = req.body;
+
+    // Verificar se o email já está cadastrado
+    const checkEmailSql = 'SELECT * FROM usuario WHERE Email = ?';
+    db.query(checkEmailSql, [email], (err, results) => {
+        if (err) {
+            return res.status(500).json({ Message: "Erro no servidor" });
+        }
+        if (results.length > 0) {
+            return res.status(400).json({ Message: "Email já cadastrado." });
+        }
+
+        // Criptografar a senha
+        bcrypt.hash(password, 10, (err, hash) => {
+            if (err) {
+                return res.status(500).json({ Message: "Erro ao criptografar a senha" });
+            }
+
+            // Inserir o novo usuário no banco de dados
+            const insertSql = 'INSERT INTO usuario (Nome, Email, Senha) VALUES (?, ?, ?)';
+            db.query(insertSql, [name, email, hash], (err, results) => {
+                if (err) {
+                    return res.status(500).json({ Message: "Erro ao registrar o usuário" });
+                }
+                return res.status(201).json({ Status: "Success", Message: "Usuário registrado com sucesso." });
+            });
+        });
+    });
+});
+
+
 app.post("/aluguel", [
     body('usuario_id').isInt().withMessage('O ID do usuário deve ser um número inteiro.'),
     body('livro_id').isInt().withMessage('O ID do livro deve ser um número inteiro.'),
     body('data_inicio').isISO8601().withMessage('A data de início deve ser uma data válida.'),
     body('data_devolucao').isISO8601().withMessage('A data de devolução deve ser uma data válida.'),
-    body('status').isIn(['ativo', 'inativo', 'cancelado']).withMessage('O status deve ser "ativo", "inativo" ou "cancelado".'),
     body('observacoes').optional().isString().withMessage('Observações devem ser uma string.')
 ], (req, res) => {
     const errors = validationResult(req);
@@ -155,7 +218,7 @@ app.post("/aluguel", [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { usuario_id, livro_id, data_inicio, data_devolucao, status, observacoes } = req.body;
+    const { usuario_id, livro_id, data_inicio, data_devolucao, observacoes } = req.body;
 
     // Verifica se o usuário já possui um aluguel ativo
     const checkUserSql = 'SELECT * FROM aluguel WHERE usuario_id = ? AND status = "ativo"';
@@ -181,8 +244,8 @@ app.post("/aluguel", [
 
             const totalLivros = livroResults[0].qtd;
 
-            // Contar quantos livros estão alugados (status "ativo")
-            const countAlugadosSql = 'SELECT COUNT(*) AS totalAlugados FROM aluguel WHERE livro_id = ? AND status = "ativo"';
+            // Contar quantos livros estão alugados (status "solicitado")
+            const countAlugadosSql = 'SELECT COUNT(*) AS totalAlugados FROM aluguel WHERE livro_id = ? AND status = "solicitado"';
             db.query(countAlugadosSql, [livro_id], (err, alugadosResults) => {
                 if (err) {
                     return res.status(500).json({ message: "Erro ao contar livros alugados" });
@@ -199,6 +262,10 @@ app.post("/aluguel", [
 
                 // Se não houver aluguel ativo e o livro estiver disponível, prossegue com a inserção do novo aluguel
                 const insertSql = 'INSERT INTO aluguel (usuario_id, livro_id, data_inicio, data_devolucao, status, observacoes) VALUES (?, ?, ?, ?, ?, ?)';
+                
+                // Definindo o status como "solicitado"
+                const status = 'solicitado';
+
                 db.query(insertSql, [usuario_id, livro_id, data_inicio, data_devolucao, status, observacoes], (err, results) => {
                     if (err) {
                         return res.status(500).json({ message: "Erro ao criar aluguel" });
@@ -217,6 +284,7 @@ app.post("/aluguel", [
         });
     });
 });
+
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

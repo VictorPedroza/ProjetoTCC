@@ -3,6 +3,8 @@
     flex-wrap: wrap;
     gap: 1rem;
     justify-content: center; /* Centraliza os cards */
+    margin-bottom: 45vh;
+    margin-top: 10vh;
   }
   
   .evento-card {
