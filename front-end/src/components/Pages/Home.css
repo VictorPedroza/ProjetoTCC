@@ -80,6 +80,31 @@ span {
     align-items: center;
     justify-content: center;
   }  
+  .carousel-controls {
+    position: absolute; /* Mantém os botões em relação à div pai */
+    bottom: -10vh; /* Distância do fundo da div pai */
+    left: 0; /* Alinha à esquerda */
+    right: 0; /* Alinha à direita */
+    display: flex; /* Ativa o flexbox */
+    justify-content: space-between; /* Espaça os botões para as extremidades */
+    padding: 0 20px; /* Adiciona espaço lateral */
+    z-index: 10; /* Certifica-se de que fiquem acima de outros elementos */
+  }
+  
+  .carousel-controls button {
+    background-color: transparent;
+    color: var(--tertiary-color); /* Cor do texto */
+    border: none;
+    padding: 10px 15px; /* Espaçamento interno */
+    border-radius: 5px; /* Bordas arredondadas */
+    cursor: pointer; /* Cursor de ponteiro */
+  }
+  
+  .carousel-controls button:disabled {
+    background-color: transparent; /* Cor quando desabilitado */
+    cursor: not-allowed; /* Cursor desabilitado */
+  }
+  
 
 @media (max-width: 600px) {
     header h1 {
@@ -102,5 +127,8 @@ span {
     }
     .chamada {
         text-align: start;
+    }
+    .carousel-controls {
+        display: none;
     }
 }

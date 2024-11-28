@@ -25,14 +25,14 @@ export default function Login() {
         axios.post('http://localhost:8088/Login', values)
         .then(res => {
             if (res.data.Status === "Success") {
-                navigate('/')
+                navigate('/');
             } else {
                 alert(res.data.Message);
             }
         })
         .catch(err => {
             console.log(err);
-            alert('Erro no servidor. Tente novamente mais tarde.');
+            alert('Erro ao logar. Aguarde!');
         });
     };
 
@@ -58,6 +58,7 @@ export default function Login() {
                         name="password"
                         onChange={e => setValues({ ...values, password: e.target.value })} 
                         required 
+                        autocomplete="current-password"
                     />
                 </div>
                 <button type="submit" className="btn-login">LOGIN</button>

@@ -37,7 +37,7 @@ nav ul li a {
     font-size: 1.528rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 728px) {
     .head-nav {
         display: flex;
         justify-content: space-between;

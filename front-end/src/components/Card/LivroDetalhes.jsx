@@ -36,7 +36,7 @@ export default function LivroDetalhes() {
                 data_inicio: new Date().toISOString(), // data atual
                 data_devolucao: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString(), // 7 dias depois
                 status: 'ativo',
-                observacoes: 'Aluguel de teste', // ou qualquer outra observação que você queira adicionar
+                observacoes: 'Solicitação do Catálogo de Livros', // ou qualquer outra observação que você queira adicionar
             });
 
             alert(`Aluguel solicitado com sucesso!`);

@@ -5,6 +5,7 @@ import './Perfil.css';
 
 export default function Perfil() {
   const [user, setUser] = useState(null);
+  const [alugueis, setAlugueis] = useState([]);
   const [error, setError] = useState('');
   const [activeIndex, setActiveIndex] = useState(null);
   const navigate = useNavigate();
@@ -14,6 +15,20 @@ export default function Perfil() {
       .then(res => {
         if (res.data.Status === "Success") {
           setUser(res.data.user);
+        } else {
+          setError("Erro ao carregar dados do usuário");
+        }
+      })
+      .catch(err => {
+        setError("Erro na requisição: " + err.message);
+      });
+  }, []);
+  
+  useEffect(() => {
+    axios.get("http://localhost:8088/alugueis")
+      .then(res => {
+        if (res.data.Status === "Success") {
+          setAlugueis(res.data.alugueis);
         } else {
           setError("Erro ao carregar dados do usuário");
         }
@@ -39,6 +54,25 @@ export default function Perfil() {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
+  // Função para formatar o ID com 6 dígitos
+  const formatID = (id) => {
+    return id.toString().padStart(6, '0');
+  };
+
+  // Função para definir a cor baseada no status
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'cancelado':
+        return 'red';
+      case 'ativo':
+        return 'green';
+      case 'solicitado':
+        return 'orange';
+      default:
+        return 'black';
+    }
+  };
+
   return (
     <main className="perfil-main">
       <div className="accordion">
@@ -48,16 +82,14 @@ export default function Perfil() {
               {user ? (
                 <>
                   <h1>Perfil</h1>
-                  <p>Nome: {user.Nome}</p>
-                  <p>Email: {user.Email}</p>
-                  <p>Senha: {user.Senha}</p>
+                  <p>Seja Bem-Vindo, {user.Nome}</p>
+                  <p>ID: {user.ID}</p>
                 </>
               ) : (
                 <>
                   <h1>Perfil</h1>
                   <p>Login não realizado!</p>
                 </>
-
               )}
               {user ? (
                 <button onClick={handleLogout} className=" btn-logout">SAIR</button>
@@ -69,29 +101,27 @@ export default function Perfil() {
         </div>
         <div className="infos-adicionais">
           <div className="accordion-item infos-aluguel">
-            <div className="accordion-button" onClick={() => toggleAccordion(1)}>
+            <div className="accordion-button">
               <h2>Registro de Livros Alugados</h2>
             </div>
-            {activeIndex === 1 && (
-              <div className="accordion-content">
+            <div className="accordion-content">
+              {alugueis.length > 0 ? (
+                alugueis.map((aluguel, index) => (
+                  <div key={index} className="alugueis">
+                    <p><p className="title-aluguel">Nome do Livro:</p> {aluguel.nome_livro}</p>
+                    <p style={{ color: getStatusColor(aluguel.status) }}>
+                      <p className="title-aluguel">Status:</p> {aluguel.status}
+                    </p>
+                    <p><p className="title-aluguel">Código de Retirada:</p> {formatID(aluguel.ID)}</p>
+                  </div>
+                ))
+              ) : (
                 <p>Futuro registro de livros alugados.</p>
-              </div>
-            )}
-          </div>
-          <div className="accordion-item infos-eventos">
-            <div className="accordion-button" onClick={() => toggleAccordion(2)}>
-              <h2>Futuros Eventos</h2>
+              )}
             </div>
-            {activeIndex === 2 && (
-              <div className="accordion-content">
-                <p>Futuros eventos que participou/participa.</p>
-              </div>
-            )}
           </div>
         </div>
-
       </div>
-
     </main>
   );
 }

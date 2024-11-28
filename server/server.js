@@ -33,24 +33,25 @@ db.connect(err => {
 const verifyUser = (req, res, next) => {
     const token = req.cookies.token;
     if (!token) {
-        return res.json({ Message: "We need token please provide it." });
+        return res.status(401).json({ Message: "We need token, please provide it." });
     } else {
         jwt.verify(token, "our-jsonwebtoken-secret-key", (err, decoded) => {
             if (err) {
-                return res.json({ Message: "Authentication Error." });
+                return res.status(403).json({ Message: "Authentication Error." });
             } else {
-                req.name = decoded.name;
+                req.name = decoded.name;  // Armazena o nome no req
+                req.userId = decoded.id;  // Armazena o id no req
                 next();
             }
         });
     }
 };
 
-/* const loginLimiter = rateLimit({
+const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
     max: 5, // Limite de 5 tentativas
     message: "Muitas tentativas de login. Tente novamente mais tarde."
-}); */
+});
 
 app.get('/', verifyUser, (req, res) => {
     return res.json({ Message: "Success", name: req.name });
@@ -68,8 +69,20 @@ app.get('/User', verifyUser, (req, res) => {
     });
 });
 
+app.get('/alugueis', verifyUser, (req, res) => {
+    const sql = 'SELECT u.Nome AS nome_usuario, l.Nome AS nome_livro, a.* FROM aluguel a JOIN usuario u ON a.usuario_id = u.ID JOIN livro l ON a.livro_id = l.ID WHERE a.usuario_id = ?';
+    db.query(sql, [req.userId], (err, data) => {
+        if (err) return res.json({ Message: "Erro ao buscar os aluguéis" });
+        if (data.length > 0) {
+            return res.json({ Status: "Success", alugueis: data });
+        } else {
+            return res.json({ Message: "Nenhum aluguel encontrado para este usuário" });
+        }
+    });
+});
 
-app.post("/Login", [
+
+app.post("/Login", loginLimiter, [
     body('email').isEmail(),
     body('password').isLength({ min: 5 })
 ], (req, res) => {
@@ -78,16 +91,12 @@ app.post("/Login", [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    console.log("Dados da requisição:", req.body); // Log dos dados recebidos
-
     const sql = 'SELECT * FROM usuario WHERE Email = ?';
     db.query(sql, [req.body.email], (err, data) => {
         if (err) {
             console.error("Erro na consulta ao banco de dados:", err);
-            return res.json({ Message: "Server Side Error" });
+            return res.status(500).json({ Message: "Server Side Error" });
         }
-
-        console.log("Dados retornados da consulta:", data); // Log dos dados retornados
 
         if (data.length > 0) {
             const user = data[0];
@@ -99,7 +108,8 @@ app.post("/Login", [
                     return res.status(500).json({ Message: "Erro ao verificar a senha" });
                 }
                 if (match) {
-                    const token = jwt.sign({ name }, 'our-jsonwebtoken-secret-key', { expiresIn: "1d" });
+                    // Gera o token com o ID e o nome do usuário
+                    const token = jwt.sign({ id: user.ID, name }, 'our-jsonwebtoken-secret-key', { expiresIn: "1d" });
                     res.cookie('token', token, { httpOnly: true });
                     return res.json({ Status: "Success", name });
                 } else {
@@ -107,12 +117,10 @@ app.post("/Login", [
                 }
             });
         } else {
-            return res.status(404).json({ Message: "Teste não encontrado" });
+            return res.status(404).json({ Message: "Usuário não encontrado" });
         }
     });
 });
-
-
 
 app.get('/Logout', (req, res) => {
     res.clearCookie('token');
@@ -142,7 +150,7 @@ app.get('/Livros', (req, res) => {
 });
 
 app.get('/Historia', (req, res) => {
-    const sql = "SELECT * FROM livro WHERE categoria LIKE '%Historia%';";
+    const sql = "SELECT * FROM livro WHERE categoria LIKE '%Sociologia%';";
     db.query(sql, (err, data) => {
         if (err) return res.json(err);
         return res.json(data);
@@ -165,7 +173,27 @@ app.get('/Eventos', (req, res) => {
     });
 });
 
-app.post("/Register", [
+app.post("/Evento", (req, res) => {
+    const { titulo, descricao, data_evento, professor_id, categoria, livro_id } = req.body;
+
+    // Validação dos campos obrigatórios
+    if (!titulo || !descricao || !data_evento || !categoria || !livro_id) {
+        return res.status(400).json({ Message: "Todos os campos obrigatórios devem ser preenchidos." });
+    }
+
+    const insertSql = 'INSERT INTO evento (titulo, descricao, data_evento, professor_id, categoria, livro_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW());'
+        
+
+    db.query(insertSql, [titulo, descricao, data_evento, professor_id, categoria, livro_id], (err, results) => {
+        if (err) {
+            console.error("Erro ao inserir evento no banco de dados:", err);
+            return res.status(500).json({ Message: "Erro ao salvar o evento." });
+        }
+        res.status(201).json({ Status: "Success", Message: "Evento criado com sucesso." });
+    });
+});
+
+app.post("/Register", loginLimiter, [
     body('name').notEmpty().withMessage('O nome é obrigatório.'),
     body('email').isEmail().withMessage('O email deve ser válido.'),
     body('password').isLength({ min: 5 }).withMessage('A senha deve ter pelo menos 5 caracteres.')
@@ -221,7 +249,7 @@ app.post("/aluguel", [
     const { usuario_id, livro_id, data_inicio, data_devolucao, observacoes } = req.body;
 
     // Verifica se o usuário já possui um aluguel ativo
-    const checkUserSql = 'SELECT * FROM aluguel WHERE usuario_id = ? AND status = "ativo"';
+    const checkUserSql = 'SELECT * FROM aluguel WHERE usuario_id = ? AND status = "ativo" OR status = "solicitado"';
     db.query(checkUserSql, [usuario_id], (err, userResults) => {
         if (err) {
             return res.status(500).json({ message: "Erro ao verificar aluguéis anteriores" });
@@ -284,7 +312,6 @@ app.post("/aluguel", [
         });
     });
 });
-
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

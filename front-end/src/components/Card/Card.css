@@ -1,6 +1,3 @@
-/* Card.css */
-/* No seu arquivo CSS principal */
-
 .livros-container {
   display: flex;
   flex-direction: column;
@@ -21,7 +18,7 @@
   cursor: pointer;
   transition: transform 0.3s;
   padding: .5rem;
-  width: 200px; /* Defina a largura desejada */
+  width: 175px; /* Defina a largura desejada */
   height: 300px; /* Defina a altura desejada */
   display: flex;
   flex-direction: column;
@@ -51,9 +48,19 @@
   margin: 0 auto;
 }
 
+.h1-card {
+  display: flex;
+  width: 100%;
+  justify-content: start !important;
+  padding: 0 3rem;
+}
+
+.h1-card h1 {
+  font-size: 2rem;
+}
 
 
-@media (max-width: 768px) {
+@media (max-width: 60px) {
   .card-container {
     flex-direction:row;
     align-items: center;
