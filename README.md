@@ -18,10 +18,10 @@ O projeto foi desenvolvido utilizando as seguintes tecnologias:
 - **React Router** para navegação
 
 ## 📌 Funcionalidades do Sistema
-✅ Cadastro e autenticação de usuários
-✅ Listagem e busca de livros disponíveis
-✅ Aluguel e devolução de livros
-✅ Controle de prazos e notificações
+- ✅ Cadastro e autenticação de usuários
+- ✅ Listagem e busca de livros disponíveis
+- ✅ Aluguel e devolução de livros
+- ✅ Controle de prazos e notificações
 
 ---
 Desenvolvido por **Victor Alexandre** para o TCC do Curso Técnico em **Análise e Desenvolvimento de Sistemas** 🎓🚀
